@@ -4,6 +4,7 @@ import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { CurrencyContext } from '../context/currency.context';
 import { MainPageQuery_category_products as MainPageQueryCategoryProducts } from '../graphql/__generated__/MainPageQuery';
 import { getPrice } from '../Utils';
+import currencyToSymbolMap from "currency-symbol-map";
 
 const MainDiv = styled.div`
   cursor: pointer;
@@ -72,17 +73,16 @@ class ProductCart extends Component<RouteComponentProps<{}> & ProductCartProps> 
     return (
       <div>
         <MainDiv onClick={() => {
-          if (available) {
             this.props.history.push(`/product?${productInfo.name}`);
           }
-        }}
+        }
         >
           <ImageContainer>
             <Image src={productInfo?.gallery?.[0]!} />
             {!available && <OutOfStock>Out of stock</OutOfStock>}
           </ImageContainer>
           <Name>{productInfo.name}</Name>
-          <Price>{`${this.context.currency} ${price?.toString()}`}</Price>
+          <Price>{`${currencyToSymbolMap(this.context.currency)} ${price?.toString()}`}</Price>
         </MainDiv>
       </div>
     );

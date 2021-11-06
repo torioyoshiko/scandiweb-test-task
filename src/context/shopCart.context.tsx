@@ -7,23 +7,23 @@ import {
 } from '../graphql/__generated__/MainPageQuery';
 import { CurrencyContext } from './currency.context';
 
-interface Product {
+export interface ShopCartProduct {
   id: string,
   selectedAttributes: object,
-  photo: string,
+  photo: string[],
   allAttributes: attribute[],
   price: any,
   quantity: number
 }
 
 interface ShopCartState {
-  addProduct: (id: string, selectedAttributes: object, allAttributes: object | null | undefined, price: any, photo: string) => void,
-  removeProduct: (id: string, selectedAttributes: object, allAttributes: object | null | undefined, price: any, photo: string) => void,
-  products: Product[]
+  addProduct: (id: string, selectedAttributes: object, allAttributes: object | null | undefined, price: any, photo: string[]) => void,
+  removeProduct: (id: string, selectedAttributes: object, allAttributes: object | null | undefined, price: any, photo: string[]) => void,
+  products: ShopCartProduct[]
 }
 
 interface ShopCartInternalState {
-  products: Product[]
+  products: ShopCartProduct[]
 }
 
 export const ShopCartContext = React.createContext({} as ShopCartState);
@@ -33,8 +33,8 @@ class ShopCartContextProvider extends Component<any, any> {
 
   static contextType = CurrencyContext;
 
-  addProduct(id: string, selectedAttributes: object, allAttributes: any, price: any, photo: string) {
-    const existingProduct = this.state.products.find((x: Product) => x.id === id && isEqual(x.selectedAttributes, selectedAttributes));
+  addProduct(id: string, selectedAttributes: object, allAttributes: any, price: any, photo: string[]) {
+    const existingProduct = this.state.products.find((x: ShopCartProduct) => x.id === id && isEqual(x.selectedAttributes, selectedAttributes));
 
     if (existingProduct) {
       existingProduct.quantity += 1;
@@ -53,7 +53,7 @@ class ShopCartContextProvider extends Component<any, any> {
   }
 
   removeProduct(id: string, selectedAttributes: object, allAttributes: any) {
-    const existingProduct = this.state.products.find((x: Product) => x.id === id && isEqual(x.selectedAttributes, selectedAttributes) && isEqual(x.allAttributes, allAttributes));
+    const existingProduct = this.state.products.find((x: ShopCartProduct) => x.id === id && isEqual(x.selectedAttributes, selectedAttributes) && isEqual(x.allAttributes, allAttributes));
 
     if (existingProduct && existingProduct.quantity > 1) {
       existingProduct.quantity -= 1;

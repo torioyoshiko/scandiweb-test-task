@@ -12,7 +12,7 @@ class CurrencyContextProvider extends Component<any, any> {
       <CurrencyContext.Provider value={{
         currency: this.state.currency || this.props?.data?.currencies?.[0],
         setCurrency: (newCurrency: string) => this.setState({ currency: newCurrency }),
-        currencies: this.props?.data?.currencies,
+        currencies: this.props?.data?.currencies || [],
       }}
       >
         {this.props.children}

@@ -6,6 +6,7 @@ import ProductCard from '../components/ProductCart';
 import Header from '../components/Header';
 import { GET_ALL_INFO } from '../graphql/query';
 import { MainPageQuery } from '../graphql/__generated__/MainPageQuery';
+import {capitalize} from "lodash";
 
 const MainDiv = styled.div`
   display: flex;
@@ -100,7 +101,7 @@ class MainPage extends Component<ChildDataProps<MainPageProps, MainPageQuery, {}
         <Container>
           {this.state.showOverlay && <Overlay />}
           <CategoryAndProducts>
-            <CategoryName>{category}</CategoryName>
+            <CategoryName>{capitalize(category)}</CategoryName>
             <ProductList>
               {filteredProducts?.map((product) => (
                 <ProductCard key={product?.id} product={product!} />

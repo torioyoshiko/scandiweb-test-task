@@ -22,6 +22,7 @@ const VariantsContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
 `;
+
 const OneVariant = styled.div<{ selected: boolean }>`
   margin-right: 12px;
   padding: 15px 20px;
@@ -41,6 +42,32 @@ const OneVariant = styled.div<{ selected: boolean }>`
   `}
 `;
 
+const OneVariantWithColor = styled.div<{ selected: boolean, backColor: string }>`
+  margin-right: 12px;
+  padding: 15px 20px;
+  border: 1px solid #1D1F22;
+  margin-top: 10px;
+  width: 20px;
+  height: 20px;
+
+  &:hover {
+    color: white;
+    background-color: black;
+    cursor: pointer;
+  }
+
+  ${({backColor}) => `
+  background-color: ${backColor}
+  `}
+
+  ${({ selected }) => selected && `
+    color: white;
+    background-color: black;
+    cursor: pointer;
+  `}
+  
+`;
+
 interface AttributeProps {
   attribute: MainPageQueryCategoryProductsAttributes;
   onAttributeSelect: (attributeItem: string) => void;
@@ -54,10 +81,21 @@ export class Attribute extends Component<AttributeProps> {
     return (
       <AttributeContainer>
         <AttributeNameContainer>
-          {`${attributeName}:`}
+          {`${attributeName?.toUpperCase()}:`}
         </AttributeNameContainer>
         <VariantsContainer>
-          {this.props?.attribute?.items?.map(
+          {this.props.attribute.type === 'swatch' && this.props?.attribute?.items?.map(
+            (variant) => (
+              <OneVariantWithColor
+                key={variant?.id}
+                selected={this.props.selectedAttribute === variant?.id}
+                backColor={variant?.value!}
+                onClick={() => this.props.onAttributeSelect(variant!.id)}
+              />
+            ),
+          )}
+
+          {this.props.attribute.type !== 'swatch' && this.props?.attribute?.items?.map(
             (variant) => (
               <OneVariant
                 key={variant?.id}

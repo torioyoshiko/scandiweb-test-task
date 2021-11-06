@@ -1,14 +1,16 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import styled from 'styled-components';
-import { ChildDataProps, graphql } from '@apollo/client/react/hoc';
-import { ReactComponent as LogoImage } from '../images/logo.svg';
-import { ReactComponent as ArrowDown } from '../images/arrow-down.svg';
-import { ReactComponent as ArrowUp } from '../images/arrow-up.svg';
-import { ReactComponent as ShopCart } from '../images/shop-cart.svg';
-import { CurrencyContext } from '../context/currency.context';
+import {ChildDataProps, graphql} from '@apollo/client/react/hoc';
+import currencyToSymbolMap from 'currency-symbol-map'
+import {ReactComponent as LogoImage} from '../images/logo.svg';
+import {ReactComponent as ArrowDown} from '../images/arrow-down.svg';
+import {ReactComponent as ArrowUp} from '../images/arrow-up.svg';
+import {ReactComponent as ShopCart} from '../images/shop-cart.svg';
+import {CurrencyContext} from '../context/currency.context';
+import {ShopCartContext} from '../context/shopCart.context';
 import ShopCardMini from './ShopCartMini';
-import { MainPageQuery } from '../graphql/__generated__/MainPageQuery';
-import { GET_ALL_INFO } from '../graphql/query';
+import {MainPageQuery} from '../graphql/__generated__/MainPageQuery';
+import {GET_ALL_INFO} from '../graphql/query';
 import Name from './Name';
 
 const MainContainer = styled.div`
@@ -98,6 +100,20 @@ const ShopCartContainer = styled.div`
   margin: 3px;
 `;
 
+const NumberOfProducts = styled.div`
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  top: -10px;
+  right: -10px;
+  background-color: black;
+  border-radius: 10px;
+  Width: 20px;
+  Height: 20px;
+  color: white;
+  font-family: Roboto, sans-serif;
+`;
+
 const ShopCartOpen = styled.div`
   position: absolute;
   right: 0;
@@ -114,7 +130,7 @@ class Header extends Component<ChildDataProps<HeaderProps, MainPageQuery, {}>> {
 
   shopCardWrapperRef: React.RefObject<HTMLDivElement>;
 
-  state = { currencySwitcherOpen: false, shopCardSwitchOpen: false };
+  state = {currencySwitcherOpen: false, shopCardSwitchOpen: false};
 
   static contextType = CurrencyContext;
 
@@ -127,11 +143,11 @@ class Header extends Component<ChildDataProps<HeaderProps, MainPageQuery, {}>> {
 
   handleClickOutside = (event: any) => {
     if (!this.currencyWrapperRef.current?.contains(event.target)) {
-      this.setState({ currencySwitcherOpen: false });
+      this.setState({currencySwitcherOpen: false});
     }
 
     if (!this.shopCardWrapperRef.current?.contains(event.target)) {
-      this.setState({ shopCardSwitchOpen: false });
+      this.setState({shopCardSwitchOpen: false});
       this.props.showOverlay(false);
     }
   };
@@ -160,59 +176,71 @@ class Header extends Component<ChildDataProps<HeaderProps, MainPageQuery, {}>> {
     }
 
     return (
-      <MainContainer>
-        <Categories>
-          {categoriesNames.map(
-            (name) => (
-              <Name
-                nameOfCategory={name}
-                key={name}
-                currentlyChosen={name !== this.props.category}
-                to={`/${name}`}
-              />
-            ),
-          )}
-        </Categories>
-        <Logo><LogoImage /></Logo>
-        <CurrencyAndShopCart>
-          <CurrencyOpen ref={this.currencyWrapperRef}>
-            <Symbols onClick={() => this.setState({ currencySwitcherOpen: !this.state.currencySwitcherOpen })}>
-              {this.context.currency}
-              <ArrowUpContainer>
-                {!this.state.currencySwitcherOpen && <ArrowDown />}
-                {this.state.currencySwitcherOpen && <ArrowUp />}
-              </ArrowUpContainer>
-            </Symbols>
-            {this.state.currencySwitcherOpen
-            && (
-            <CurrencyMenu>
-              {currencies.map((currency: string) => (
-                <Currency
-                  onClick={() => {
-                    this.context.setCurrency(currency);
-                    this.setState({ currencySwitcherOpen: !this.state.currencySwitcherOpen });
-                  }}
-                  key={currency}
-                >
-                  {currency}
-                </Currency>
-              ))}
-            </CurrencyMenu>
-            )}
-          </CurrencyOpen>
-          <ShopCartContainer>
-            <ShopCart
-              onClick={() => {
-                this.setState({ shopCardSwitchOpen: !this.state.shopCardSwitchOpen });
-                this.props.showOverlay(!this.state.shopCardSwitchOpen);
-              }}
-            />
-            <ShopCartOpen ref={this.shopCardWrapperRef}>
-              {this.state.shopCardSwitchOpen && <ShopCardMini />}
-            </ShopCartOpen>
-          </ShopCartContainer>
-        </CurrencyAndShopCart>
-      </MainContainer>
+      <ShopCartContext.Consumer>
+        {
+          ({products}) => {
+            return (
+              <MainContainer>
+                <Categories>
+                  {categoriesNames.map(
+                    (name) => (
+                      <Name
+                        nameOfCategory={name}
+                        key={name}
+                        currentlyChosen={name !== this.props.category}
+                        to={`/${name}`}
+                      />
+                    ),
+                  )}
+                </Categories>
+                <Logo><LogoImage/></Logo>
+                <CurrencyAndShopCart>
+                  <CurrencyOpen ref={this.currencyWrapperRef}>
+                    <Symbols onClick={() => this.setState({currencySwitcherOpen: !this.state.currencySwitcherOpen})}>
+                      {currencyToSymbolMap(this.context.currency)}
+                      <ArrowUpContainer>
+                        {!this.state.currencySwitcherOpen && <ArrowDown/>}
+                        {this.state.currencySwitcherOpen && <ArrowUp/>}
+                      </ArrowUpContainer>
+                    </Symbols>
+                    {this.state.currencySwitcherOpen
+                    && (
+                      <CurrencyMenu>
+                        {currencies.map((currency: string) => (
+                          <Currency
+                            onClick={() => {
+                              this.context.setCurrency(currency);
+                              this.setState({currencySwitcherOpen: !this.state.currencySwitcherOpen});
+                            }}
+                            key={currency}
+                          >
+                            {currencyToSymbolMap(currency) + ' ' + currency}
+                          </Currency>
+                        ))}
+                      </CurrencyMenu>
+                    )}
+                  </CurrencyOpen>
+                  <ShopCartContainer>
+                    <ShopCart
+                      onClick={() => {
+                        this.setState({shopCardSwitchOpen: !this.state.shopCardSwitchOpen});
+                        this.props.showOverlay(!this.state.shopCardSwitchOpen);
+                      }}
+                    />
+                    {products.length > 0 && <NumberOfProducts onClick={() => {
+                      this.setState({shopCardSwitchOpen: !this.state.shopCardSwitchOpen});
+                      this.props.showOverlay(!this.state.shopCardSwitchOpen);
+                    }}>{products.length}</NumberOfProducts>}
+                    <ShopCartOpen ref={this.shopCardWrapperRef}>
+                      {this.state.shopCardSwitchOpen && <ShopCardMini/>}
+                    </ShopCartOpen>
+                  </ShopCartContainer>
+                </CurrencyAndShopCart>
+              </MainContainer>
+            );
+          }
+        }
+      </ShopCartContext.Consumer>
     );
   }
 }

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { ChildDataProps, graphql, QueryControls } from '@apollo/client/react/hoc';
 import styled from 'styled-components';
 import { RouteComponentProps } from 'react-router-dom';
+import { sanitize } from 'dompurify'
 import { CurrencyContext } from '../context/currency.context';
 import Header from '../components/Header';
 import { GET_ALL_INFO } from '../graphql/query';
@@ -9,6 +10,7 @@ import { Attribute } from '../components/Attribute';
 import { MainPageQuery, MainPageQuery_category_products as Product } from '../graphql/__generated__/MainPageQuery';
 import { ShopCartContext } from '../context/shopCart.context';
 import { getPrice } from '../Utils';
+import {compact} from "lodash";
 
 const MainDiv = styled.div`
   display: flex;
@@ -208,13 +210,15 @@ class FullProductInfo extends Component<ChildDataProps<RouteComponentProps<{}> &
                     {
                       productInfo?.gallery?.map((minPhoto: string | null) => (
                         <div key={minPhoto}>
-                          <Miniature src={photo!} onClick={() => this.setState({ mainPhoto: minPhoto })} />
+                          <Miniature src={minPhoto!} onClick={() => this.setState({ mainPhoto: minPhoto })} />
                         </div>
                       ))
                     }
                   </Miniatures>
                   <MainPhoto>
-                    <Photo alt="main" src={photo!} />
+                    <div>
+                      <Photo alt="main" src={photo!}/>
+                    </div>
                   </MainPhoto>
                 </AllPhotos>
                 <Info>
@@ -240,12 +244,12 @@ class FullProductInfo extends Component<ChildDataProps<RouteComponentProps<{}> &
                   </Price>
                   <AddToCart
                     onClick={() => {
-                      addProduct(productInfo?.name!, this.state.selectedAttributes, productInfo?.attributes, productInfo?.prices, productInfo?.gallery?.[0]!);
+                      addProduct(productInfo?.name!, this.state.selectedAttributes, productInfo?.attributes, productInfo?.prices, compact(productInfo?.gallery));
                     }}
                   >
                     ADD TO CART
                   </AddToCart>
-                  <Description dangerouslySetInnerHTML={{ __html: productInfo?.description || '' }} />
+                  <Description dangerouslySetInnerHTML={{__html: sanitize(productInfo?.description!)}}/>
                 </Info>
               </ProductInfo>
             </Container>
